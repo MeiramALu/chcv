@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+{% block title %}Галерея — МнемоСурет{% endblock %}
+{% block content %}
+<h2 class="view-title">Галерея — {{ student.name }}</h2>
+<p class="view-sub">Әр сурет өзін құраған мнемоникалық компоненттермен бірге сақталады. Суретті басып, сөйлемді тыңдаңыз.</p>
+<div class="gallery">
+  {% for a in artworks %}
+  <div class="g-item" data-say="{{ a.sentence }}" tabindex="0">
+    <div class="im">
+      {% if a.image %}<img src="{{ a.image.url }}" alt="{{ a.sentence }}" loading="lazy">
+      {% else %}<div class="sketch" data-emojis="{{ a.emojis_json }}"></div><span class="badge-off">Офлайн эскиз</span>{% endif %}
+    </div>
+    <div class="meta">
+      {% for s in a.segments %}{% if s.slot %}<span class="tag" style="border-color:{{ s.color }}">{{ s.text|cut:"." }}</span>{% endif %}{% endfor %}
+    </div>
+    <div class="g-date">{{ a.created|date:"d.m.Y H:i" }}</div>
+  </div>
+  {% empty %}
+  <div class="g-empty">Әзірге сурет жоқ. <a href="{% url 'learn' %}">«Үйрену»</a> бөліміне өтіңіз.</div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.g-item').forEach(el => el.onclick = () => Mnemo.speak(el.dataset.say));
+document.querySelectorAll('.sketch').forEach(el => {
+  let e = {}; try { e = JSON.parse(el.dataset.emojis); } catch (_) {}
+  el.replaceWith(Mnemo.sketch(e));
+});
+</script>
+{% endblock %}

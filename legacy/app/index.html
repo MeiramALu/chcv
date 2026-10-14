@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>МнемоСурет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></symbol>
+    <symbol id="i-learn" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="i-create" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-run" viewBox="0 0 24 24"><path d="m5 3 14 9-14 9z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.2-6.2 3.2L7 14.2 2 9.3l6.9-1z"/></symbol>
+    <symbol id="i-type" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <a class="logo" href="#home"><span class="logo-mark"><i></i><i></i><i></i><i></i><i></i></span>МнемоСурет</a>
+  <nav>
+    <a href="#home" data-r="home"><svg><use href="#i-home"/></svg>Басты бет</a>
+    <a href="#learn" data-r="learn"><svg><use href="#i-learn"/></svg>Үйрену</a>
+    <a href="#create" data-r="create"><svg><use href="#i-create"/></svg>Жасау</a>
+    <a href="#gallery" data-r="gallery"><svg><use href="#i-image"/></svg>Галерея</a>
+    <a href="#teacher" data-r="teacher"><svg><use href="#i-chart"/></svg>Мұғалім</a>
+  </nav>
+  <div class="score" title="Жиналған ұпай"><svg><use href="#i-star"/></svg><span id="starCount">0</span></div>
+</header>
+
+<main>
+  <!-- БАСТЫ БЕТ -->
+  <section id="v-home" class="view">
+    <div class="hero">
+      <div class="hero-txt">
+        <div class="eyebrow">Дисграфиясы бар балаларға арналған оқыту ортасы</div>
+        <h1>Сөзді жазбай-ақ суретке айналдыру</h1>
+        <p>Бала бес сұраққа карточка арқылы жауап береді, жүйе сөйлемді құрастырып, графикалық генераторға жібереді. Жазу дағдысы талап етілмейді.</p>
+        <div class="hero-btns">
+          <a class="btn primary big" href="#learn"><svg><use href="#i-learn"/></svg>Үйренуді бастау</a>
+          <a class="btn big" href="#create"><svg><use href="#i-create"/></svg>Еркін режим</a>
+        </div>
+      </div>
+      <div class="model">
+        <div class="model-title">Мнемоникалық модель «Кемпірқосақ жолы»</div>
+        <div class="model-rows" id="homeRoad"></div>
+      </div>
+    </div>
+    <div class="features">
+      <div class="feature"><b>Жазусыз енгізу</b><span>46 суретті карточка, буындық жазылым, бірінші әріпті түспен белгілеу.</span></div>
+      <div class="feature"><b>Дауыстық қолдау</b><span>Сөздер мен сөйлем дыбысталады; сөзді дауыспен айтуға болады.</span></div>
+      <div class="feature"><b>Қатеге төзімділік</b><span>Қате жазылған сөз танылып, дұрыс карточка ұсынылады.</span></div>
+    </div>
+  </section>
+
+  <!-- ҮЙРЕНУ / ЖАСАУ -->
+  <section id="v-create" class="view">
+    <div class="road" id="road"></div>
+    <div class="workspace">
+      <div class="left">
+        <div class="guide" id="guide">
+          <div class="guide-mascot" id="guideMascot"></div>
+          <div class="guide-text" id="guideText"></div>
+          <button class="icon-btn" id="guideSay" title="Тыңдау"><svg><use href="#i-sound"/></svg></button>
+        </div>
+        <div class="cards" id="cards"></div>
+        <div class="typebox">
+          <div class="typebox-row">
+            <svg class="typebox-ico"><use href="#i-type"/></svg>
+            <input id="typeInput" placeholder="Сөзді жазыңыз немесе айтыңыз" autocomplete="off">
+            <button class="icon-btn mic" id="micBtn" title="Дауыспен енгізу"><svg><use href="#i-mic"/></svg></button>
+          </div>
+          <div class="suggest" id="suggest"></div>
+        </div>
+      </div>
+      <aside class="right">
+        <div class="panel-title">Құрастырылған сөйлем</div>
+        <div class="sentence" id="sentence"></div>
+        <div class="row-btns">
+          <button class="btn" id="sayBtn"><svg><use href="#i-sound"/></svg>Тыңдау</button>
+          <button class="btn" id="clearBtn"><svg><use href="#i-reset"/></svg>Тазалау</button>
+        </div>
+        <button class="btn primary big wide" id="genBtn"><svg><use href="#i-run"/></svg>Сурет салу</button>
+        <div class="result" id="result">
+          <div class="result-empty">Нәтиже осы жерде көрсетіледі</div>
+        </div>
+        <details class="prompt-peek"><summary>Генераторға жіберілетін сұраныс</summary><code id="promptEn"></code></details>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ГАЛЕРЕЯ -->
+  <section id="v-gallery" class="view">
+    <h2 class="view-title">Галерея</h2>
+    <p class="view-sub">Әр сурет өзін құраған мнемоникалық компоненттермен бірге сақталады.</p>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <!-- МҰҒАЛІМ -->
+  <section id="v-teacher" class="view">
+    <h2 class="view-title">Мұғалім панелі</h2>
+    <p class="view-sub">Оқушының жұмыс нәтижелері және интерфейсті бейімдеу баптаулары.</p>
+    <div class="kpis" id="kpis"></div>
+    <div class="charts">
+      <div class="chart-card"><h3>Күн сайынғы суреттер саны</h3><canvas id="chDaily"></canvas></div>
+      <div class="chart-card"><h3>Сөйлем құрау уақыты, сек</h3><canvas id="chTime"></canvas></div>
+      <div class="chart-card"><h3>Енгізу тәсілдері</h3><canvas id="chInput"></canvas></div>
+      <div class="chart-card"><h3>Жиі таңдалатын сөздер</h3><canvas id="chTop"></canvas></div>
+    </div>
+    <div class="settings">
+      <h3>Бейімдеу баптаулары</h3>
+      <label><input type="checkbox" data-set="syllables"> Сөзді буынға бөлу (мы-сық)</label>
+      <label><input type="checkbox" data-set="firstLetter"> Бірінші әріпті түспен белгілеу</label>
+      <label><input type="checkbox" data-set="autoSpeak"> Таңдалған сөзді дауыстап оқу</label>
+      <label><input type="checkbox" data-set="bigFont"> Үлкен қаріп және кең аралық</label>
+      <label>Оқу жылдамдығы <input type="range" min="0.5" max="1.2" step="0.1" data-set="rate"></label>
+      <label>ElevenLabs кілті (міндетті емес) <input type="password" data-set="elKey" placeholder="sk_..." autocomplete="off"></label>
+      <label>ElevenLabs дауыс ID <input type="text" data-set="elVoice" placeholder="EXAVITQu4vr4xnSDxMaL" autocomplete="off"></label>
+      <div><button class="btn" id="resetBtn"><svg><use href="#i-reset"/></svg>Статистиканы тазалау</button></div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="audio/index.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

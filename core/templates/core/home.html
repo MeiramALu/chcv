@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<section class="hero">
+  <div class="hero-txt">
+    <div class="eyebrow">Дисграфиясы бар балаларға арналған оқыту ортасы</div>
+    <h1>Сөзді жазбай-ақ суретке айналдыру</h1>
+    <p>Бала бес сұраққа карточка арқылы жауап береді, жүйе қазақша сөйлемді құрастырып, дауыстап оқиды және графикалық ЖИ-генераторға жібереді. Жазу дағдысы талап етілмейді.</p>
+    <div class="hero-btns">
+      <a class="btn primary big" href="{% url 'learn' %}"><svg><use href="#i-learn"/></svg>Үйренуді бастау</a>
+      <a class="btn big" href="{% url 'create' %}"><svg><use href="#i-create"/></svg>Еркін режим</a>
+    </div>
+  </div>
+  <div class="model">
+    <div class="model-title">Мнемоникалық модель «Кемпірқосақ жолы»</div>
+    {% for s in slots %}
+    <div class="m-row">
+      <span class="n" style="background:{{ s.color }}">{{ forloop.counter }}</span><span class="m">{{ s.mascot }}</span>
+      <span class="q" style="color:{{ s.color }}">{{ s.q }}</span><span class="r">{{ s.role }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+<div class="features">
+  <div class="feature"><b>Жазусыз енгізу</b><span>{{ card_count }} суретті карточка, буындық жазылым, бірінші әріпті түспен белгілеу.</span></div>
+  <div class="feature"><b>Қазақша дауыс</b><span>Сұрақтар, сөздер мен сөйлем ElevenLabs арқылы қазақ тілінде дыбысталады.</span></div>
+  <div class="feature"><b>Қатеге төзімділік</b><span>Қате жазылған сөз (б↔д, қ→к, әріп түсіп қалуы) танылып, дұрыс карточка ұсынылады.</span></div>
+  <div class="feature"><b>Қауіпсіз генерация</b><span>Генераторға тек тексерілген карточка фрагменттері жіберіледі — бала еркін мәтін жазбайды.</span></div>
+</div>
+{% endblock %}

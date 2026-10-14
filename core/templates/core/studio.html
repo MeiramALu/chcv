@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}{% if mode == 'learn' %}Үйрену{% else %}Жасау{% endif %} — МнемоСурет{% endblock %}
+{% block content %}
+<div class="mode-head">
+  <h2 class="view-title">{% if mode == 'learn' %}Үйрену режимі{% else %}Еркін режим{% endif %}</h2>
+  <span class="view-sub">{% if mode == 'learn' %}Қадамдар ретімен ашылады, әр қадамға +1 ұпай.{% else %}Кез келген қадамнан бастауға болады.{% endif %}</span>
+</div>
+<div class="road" id="road"></div>
+<div class="workspace">
+  <div class="left">
+    <div class="guide">
+      <div class="guide-mascot" id="guideMascot"></div>
+      <div class="guide-text" id="guideText"></div>
+      <button class="icon-btn" id="guideSay" title="Тыңдау"><svg><use href="#i-sound"/></svg></button>
+    </div>
+    <div class="cards" id="cards"></div>
+    <div class="typebox">
+      <div class="typebox-row">
+        <svg class="typebox-ico"><use href="#i-type"/></svg>
+        <input id="typeInput" placeholder="Сөзді жазыңыз немесе айтыңыз" autocomplete="off" spellcheck="false">
+        <button class="icon-btn mic" id="micBtn" title="Дауыспен енгізу"><svg><use href="#i-mic"/></svg></button>
+      </div>
+      <div class="suggest" id="suggest"></div>
+    </div>
+  </div>
+  <aside class="right">
+    <div class="panel-title">Құрастырылған сөйлем</div>
+    <div class="sentence" id="sentence"></div>
+    <div class="row-btns">
+      <button class="btn" id="sayBtn"><svg><use href="#i-sound"/></svg>Тыңдау</button>
+      <button class="btn" id="clearBtn"><svg><use href="#i-reset"/></svg>Тазалау</button>
+    </div>
+    <button class="btn primary big wide" id="genBtn"><svg><use href="#i-run"/></svg>Сурет салу</button>
+    <div class="result" id="result"><div class="result-empty">Нәтиже осы жерде көрсетіледі</div></div>
+    <details class="prompt-peek"><summary>Генераторға жіберілетін сұраныс</summary><code id="promptEn"></code></details>
+  </aside>
+</div>
+{{ data|json_script:"mnemo-data" }}
+{{ prefs|json_script:"mnemo-prefs" }}
+<script>window.MNEMO_MODE = "{{ mode }}";</script>
+{% endblock %}
+{% block scripts %}<script src="{% static 'core/studio.js' %}"></script>{% endblock %}
