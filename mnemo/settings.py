@@ -85,9 +85,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- ElevenLabs (қазақша дыбыстау) ---
 ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY', '')
-ELEVENLABS_VOICE_ID = os.getenv('ELEVENLABS_VOICE_ID', 'EXAVITQu4vr4xnSDxMaL')
+ELEVENLABS_VOICE_ID = os.getenv('ELEVENLABS_VOICE_ID', 'JBFqnCBsd6RMkjVDRZzb')  # George — қазақша ең анық (сынақ бойынша)
 ELEVENLABS_MODEL = os.getenv('ELEVENLABS_MODEL', 'eleven_v3')  # қазақ тілін (kk) қолдайтын модель
 ELEVENLABS_LANGUAGE = os.getenv('ELEVENLABS_LANGUAGE', 'kk')
+ELEVENLABS_STABILITY = float(os.getenv('ELEVENLABS_STABILITY', '1.0'))  # v3: 0.0 / 0.5 / 1.0 — 1.0 айтылымы тұрақты
 
 # --- Сурет генераторы ---
 IMAGE_PROVIDER = os.getenv('IMAGE_PROVIDER', 'pollinations')  # pollinations | none

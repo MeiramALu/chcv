@@ -4,6 +4,7 @@
 сондықтан ElevenLabs лимиті үнемделеді. Кілт болмаса не қате болса — None,
 ол кезде браузер өз дауысымен оқиды.
 """
+import difflib
 import hashlib
 import logging
 import re
@@ -17,6 +18,7 @@ from django.core.files.storage import default_storage
 log = logging.getLogger(__name__)
 
 API = 'https://api.elevenlabs.io/v1/text-to-speech/{voice}'
+STT_API = 'https://api.elevenlabs.io/v1/speech-to-text'
 MAX_LEN = 300
 _CAPS = re.compile(r'\b[А-ЯӘӨҰҮҚҒҢҺІЁ]{2,}\b')
 _blocked_until = 0.0  # кілт жарамсыз болса, API-ді біраз уақыт мазаламаймыз
@@ -34,7 +36,8 @@ def normalize(text):
 
 
 def cache_name(text):
-    key = f"{settings.ELEVENLABS_VOICE_ID}|{settings.ELEVENLABS_MODEL}|{normalize(text).lower()}"
+    key = (f"{settings.ELEVENLABS_VOICE_ID}|{settings.ELEVENLABS_MODEL}|{settings.ELEVENLABS_STABILITY}|"
+           f"{normalize(text).lower()}")
     return f"tts/{hashlib.sha1(key.encode('utf-8')).hexdigest()[:16]}.mp3"
 
 
@@ -44,7 +47,8 @@ def cached_url(text):
 
 
 def _request(text, with_language=True):
-    body = {'text': text, 'model_id': settings.ELEVENLABS_MODEL}
+    body = {'text': text, 'model_id': settings.ELEVENLABS_MODEL,
+            'voice_settings': {'stability': settings.ELEVENLABS_STABILITY}}
     if with_language and settings.ELEVENLABS_LANGUAGE:
         body['language_code'] = settings.ELEVENLABS_LANGUAGE
     return requests.post(
@@ -55,37 +59,90 @@ def _request(text, with_language=True):
     )
 
 
-def synthesize(text):
-    """mp3 файлының URL-ін қайтарады (кэштен немесе ElevenLabs-тен)."""
+def _generate(text):
+    """Бір рет синтездеу → mp3 байттары."""
     global _blocked_until
-    text = normalize(text)
-    if not text:
-        raise TTSUnavailable('бос мәтін')
-    url = cached_url(text)
-    if url:
-        return url
     if not settings.ELEVENLABS_API_KEY:
         raise TTSUnavailable('ELEVENLABS_API_KEY берілмеген')
     if time.monotonic() < _blocked_until:
         raise TTSUnavailable('ElevenLabs уақытша қолжетімсіз')
-
     try:
-        r = _request(text)
-        if r.status_code == 400 and 'language' in r.text.lower():
-            r = _request(text, with_language=False)
+        for attempt in range(6):
+            r = _request(text)
+            if r.status_code == 400 and 'language' in r.text.lower():
+                r = _request(text, with_language=False)
+            # тарифте қатар сұраулар саны шектеулі (429) — сәл күтіп, қайталаймыз
+            if r.status_code != 429 or 'quota' in r.text.lower():
+                break
+            time.sleep(1.5 * (attempt + 1))
     except requests.RequestException as e:
         raise TTSUnavailable(f'желі қатесі: {e}') from e
 
-    if r.status_code in (401, 402, 403, 429):
+    if r.status_code in (401, 402, 403) or (r.status_code == 429 and 'quota' in r.text.lower()):
         _blocked_until = time.monotonic() + 300
         log.warning('ElevenLabs %s: %s', r.status_code, r.text[:200])
         raise TTSUnavailable(f'ElevenLabs {r.status_code}')
     if r.status_code != 200 or not r.headers.get('content-type', '').startswith('audio'):
         log.warning('ElevenLabs %s: %s', r.status_code, r.text[:200])
         raise TTSUnavailable(f'ElevenLabs {r.status_code}')
+    return r.content
 
-    name = default_storage.save(cache_name(text), ContentFile(r.content))
-    return default_storage.url(name)
+
+def transcribe(audio):
+    """ElevenLabs Scribe арқылы аудионы қайта мәтінге айналдыру (сапаны тексеру үшін)."""
+    if not audio or len(audio) < 2000:  # бос немесе бүлінген файл
+        return ''
+    for attempt in range(6):
+        r = requests.post(STT_API, headers={'xi-api-key': settings.ELEVENLABS_API_KEY},
+                          data={'model_id': 'scribe_v1', 'language_code': settings.ELEVENLABS_LANGUAGE or 'kk'},
+                          files={'file': ('a.mp3', audio, 'audio/mpeg')}, timeout=60)
+        if r.status_code != 429:
+            break
+        time.sleep(1.5 * (attempt + 1))
+    return r.json().get('text', '') if r.ok else ''
+
+
+def similarity(want, got):
+    """0…1: дыбысталған мәтін түпнұсқаға қаншалықты сәйкес."""
+    clean = lambda t: re.sub(r'[^\w ]', '', t.lower()).split()
+    return difflib.SequenceMatcher(None, ' '.join(clean(want)), ' '.join(clean(got))).ratio()
+
+
+def synthesize(text, verify=False, attempts=3, force=False, keep_above=None):
+    """mp3 файлының URL-ін қайтарады (кэштен немесе ElevenLabs-тен).
+
+    verify=True: eleven_v3 әр жолы сәл басқаша оқиды, сондықтан бірнеше нұсқа
+    жасалып, әрқайсысы Scribe арқылы қайта танылады; ең дәлі сақталады.
+    keep_above: жаңа нұсқа осы бағадан жоғары болмаса, бар файл сақталады.
+    Қайтарылатын мән: verify кезінде (url, score, естілгені), әйтпесе url.
+    """
+    text = normalize(text)
+    if not text:
+        raise TTSUnavailable('бос мәтін')
+    url = None if force else cached_url(text)
+    if url:
+        return (url, None, '') if verify else url
+
+    best, best_score, heard = None, -1.0, ''
+    for _ in range(attempts if verify else 1):
+        audio = _generate(text)
+        if not verify:
+            best = audio
+            break
+        got = transcribe(audio)
+        score = similarity(text, got)
+        if score > best_score:
+            best, best_score, heard = audio, score, got
+        if score >= 0.98:
+            break
+
+    name = cache_name(text)
+    if keep_above is not None and best_score <= keep_above and default_storage.exists(name):
+        return default_storage.url(name), best_score, heard
+    if default_storage.exists(name):
+        default_storage.delete(name)
+    url = default_storage.url(default_storage.save(name, ContentFile(best)))
+    return (url, best_score, heard) if verify else url
 
 
 def status():

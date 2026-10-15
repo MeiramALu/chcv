@@ -14,6 +14,7 @@
 
   const firstEmpty = () => { const i = SLOTS.findIndex(s => !sel[s.id]); return i < 0 ? SLOTS.length - 1 : i; };
   const allDone = () => SLOTS.every(s => sel[s.id]);
+  const sayWord = (k) => D.word_tpl.replace('{k}', k);
   const guideSpeech = () => allDone() ? PH.all_done : D.steps[active];
 
   // ---------- сөз (буын + бірінші әріп) ----------
@@ -73,7 +74,7 @@
     // алдымен таңдалған сөз, сосын келесі сұрақ (үйрену режимінде)
     if (P.auto_speak) {
       const follow = MODE === 'learn' ? guideSpeech() : (allDone() ? PH.all_done : '');
-      speak([card.k, follow]);
+      speak([sayWord(card.k), follow]);
     }
   }
 

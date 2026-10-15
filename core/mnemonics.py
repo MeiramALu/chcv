@@ -121,6 +121,12 @@ def resolve(selection):
     return out
 
 
+def word_speech(word):
+    """Жалғыз сөзді eleven_v3 бұрмалап оқиды (мәтін тым қысқа), сондықтан
+    сөз қысқа контекстпен айтылады: «Бұл сөз — мысық.»"""
+    return f'Бұл сөз — {word}.'
+
+
 def step_prompt(index):
     """Қадам сұрағы — экранда да, дыбыста да бірдей."""
     return f"{ORDINALS[index]} қадам. {SLOTS[index]['rhyme']}"
@@ -183,14 +189,15 @@ def all_static_texts():
     texts += [step_prompt(i) for i in range(len(SLOTS))]
     for sid in SLOT_IDS:
         for c in CARDS[sid]:
-            texts.append(c['k'])
+            texts.append(word_speech(c['k']))
     return texts
 
 
 def client_data():
     """Шаблонға json_script арқылы берілетін деректер."""
     return {'slots': SLOTS, 'cards': CARDS, 'phrases': PHRASES,
-            'steps': [step_prompt(i) for i in range(len(SLOTS))]}
+            'steps': [step_prompt(i) for i in range(len(SLOTS))],
+            'word_tpl': word_speech('{k}')}
 
 
 def card_count():
